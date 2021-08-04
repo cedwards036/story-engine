@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "The Story Engine",
+  "name": "A fan-made website that generates random hands of Story Engine cards",
   "icons": [
     {
       "src": "favicon.ico",
