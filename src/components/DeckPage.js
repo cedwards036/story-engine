@@ -1,6 +1,87 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import '../App.css';
 
-export default function HomePage() {
-    return (<div>Deck Page</div>)
+export default function DeckPage() {
+    const { deckId } = useParams();
+    const [packs, setPacks] = useState([]);
+    const [selectedPacks, setSelectedPacks] = useState({});
+    const [cards, setCards] = useState([]);
+    useEffect(() => {
+        fetch(process.env.REACT_APP_API_URL + 'decks/' + deckId + '/packs', { method: 'GET', mode: 'cors' })
+            .then(res => res.json())
+            .then(data => {
+                setPacks(data);
+                setSelectedPacks(initializeSelectedPacks(data));
+            });
+    }, [deckId]);
+
+    function initializeSelectedPacks(packData) {
+        return packData.reduce((selectedPacks, pack) => {
+            selectedPacks[pack.id] = true;
+            return selectedPacks;
+        }, {});
+    }
+
+    function handleCheckboxChange(event) {
+        setSelectedPacks({
+            ...selectedPacks,
+            [event.target.value]: !selectedPacks[event.target.value]
+        });
+    }
+
+    function create_pack_url_string() {
+        const selected_pack_ids = Object.entries(selectedPacks)
+            .filter(([id, isSelected]) => isSelected)
+            .map(keyValuePair => keyValuePair[0])
+        return selected_pack_ids.map(pack_id => `pack=${pack_id}`).join('&')
+    }
+
+    function handleReroll(category_id, index) {
+        const api_url = process.env.REACT_APP_API_URL + 'decks/' + deckId + '/random/card?category=' + category_id + '&' + create_pack_url_string()
+        fetch(api_url, { method: 'GET', mode: 'cors' })
+            .then(res => res.json())
+            .then(data => {
+                const newCards = [...cards];
+                newCards[index] = data;
+                setCards(newCards);
+            });
+    }
+
+    function handleSubmit(event) {
+        const api_url = process.env.REACT_APP_API_URL + 'decks/' + deckId + '/random/hand?' + create_pack_url_string()
+        fetch(api_url, { method: 'GET', mode: 'cors' })
+            .then(res => res.json())
+            .then(data => setCards(data));
+        event.preventDefault();
+    }
+
+    const packDivs = packs.map(p =>
+        <div key={p.id}>
+            <input
+                type='checkbox'
+                name={p.name}
+                value={p.id}
+                checked={!!selectedPacks[p.id]}
+                onChange={handleCheckboxChange}
+            />
+            <label htmlFor={p.name}>{p.name}</label>
+        </div>
+    )
+    return (
+        <div>
+            <form onSubmit={handleSubmit}>
+                {packDivs}
+                <input type='submit' value='Submit' />
+                {
+                    cards.map((card, index) =>
+                        <div key={card.id}>
+                            <div>{card.category}: {card.cue} ({card.pack})</div>
+                            <button type='button' onClick={() => handleReroll(card.category_id, index)}>Re-Roll</button>
+                        </div>
+                    )
+                }
+            </form>
+        </div>
+    )
 }
