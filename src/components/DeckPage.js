@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import Card from './Card';
 import '../App.css';
 
 export default function DeckPage() {
@@ -7,12 +8,15 @@ export default function DeckPage() {
     const [packs, setPacks] = useState([]);
     const [selectedPacks, setSelectedPacks] = useState({});
     const [cards, setCards] = useState([]);
+
     useEffect(() => {
         fetch(process.env.REACT_APP_API_URL + 'decks/' + deckId + '/packs', { method: 'GET', mode: 'cors' })
             .then(res => res.json())
             .then(data => {
                 setPacks(data);
-                setSelectedPacks(initializeSelectedPacks(data));
+                const initialSelectedPacks = initializeSelectedPacks(data)
+                setSelectedPacks(initialSelectedPacks);
+                loadHand(initialSelectedPacks)
             });
     }, [deckId]);
 
@@ -30,7 +34,7 @@ export default function DeckPage() {
         });
     }
 
-    function create_pack_url_string() {
+    function create_pack_url_string(selectedPacks) {
         const selected_pack_ids = Object.entries(selectedPacks)
             .filter(([id, isSelected]) => isSelected)
             .map(keyValuePair => keyValuePair[0])
@@ -38,7 +42,7 @@ export default function DeckPage() {
     }
 
     function handleReroll(category_id, index) {
-        const api_url = process.env.REACT_APP_API_URL + 'decks/' + deckId + '/random/card?category=' + category_id + '&' + create_pack_url_string()
+        const api_url = process.env.REACT_APP_API_URL + 'decks/' + deckId + '/random/card?category=' + category_id + '&' + create_pack_url_string(selectedPacks)
         fetch(api_url, { method: 'GET', mode: 'cors' })
             .then(res => res.json())
             .then(data => {
@@ -48,11 +52,15 @@ export default function DeckPage() {
             });
     }
 
-    function handleSubmit(event) {
-        const api_url = process.env.REACT_APP_API_URL + 'decks/' + deckId + '/random/hand?' + create_pack_url_string()
+    function loadHand(selectedPacks) {
+        const api_url = process.env.REACT_APP_API_URL + 'decks/' + deckId + '/random/hand?' + create_pack_url_string(selectedPacks)
         fetch(api_url, { method: 'GET', mode: 'cors' })
             .then(res => res.json())
             .then(data => setCards(data));
+    }
+
+    function handleSubmit(event) {
+        loadHand(selectedPacks);
         event.preventDefault();
     }
 
@@ -75,10 +83,13 @@ export default function DeckPage() {
                 <input type='submit' value='Submit' />
                 {
                     cards.map((card, index) =>
-                        <div key={card.id}>
-                            <div>{card.category}: {card.cue} ({card.pack})</div>
-                            <button type='button' onClick={() => handleReroll(card.category_id, index)}>Re-Roll</button>
-                        </div>
+                        <Card
+                            key={card.id}
+                            category={card.category}
+                            pack={card.pack}
+                            cue={card.cue}
+                            handleReroll={() => handleReroll(card.category_id, index)}
+                        />
                     )
                 }
             </form>
