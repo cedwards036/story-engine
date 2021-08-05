@@ -3,8 +3,12 @@ import '../App.css';
 
 export default function Card(props) {
     return (
-        <div>
-            <div>{props.category}: {props.cue} ({props.pack})</div>
+        <div className='card-wrapper'>
+            <div className='card'>
+                <div className='card-header'>{props.category}</div>
+                <div className='card-body'>{props.cue}</div>
+                <div className='card-footer'>{props.pack}</div>
+            </div>
             <button type='button' onClick={props.handleReroll}>Re-Roll</button>
         </div>
     )

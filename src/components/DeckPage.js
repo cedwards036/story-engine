@@ -18,6 +18,7 @@ export default function DeckPage() {
                 setSelectedPacks(initialSelectedPacks);
                 loadHand(initialSelectedPacks)
             });
+        // eslint-disable-next-line
     }, [deckId]);
 
     function initializeSelectedPacks(packData) {
@@ -80,7 +81,9 @@ export default function DeckPage() {
         <div>
             <form onSubmit={handleSubmit}>
                 {packDivs}
-                <input type='submit' value='Submit' />
+                <input type='submit' value='Draw New Hand' />
+            </form>
+            <div className='hand'>
                 {
                     cards.map((card, index) =>
                         <Card
@@ -92,7 +95,7 @@ export default function DeckPage() {
                         />
                     )
                 }
-            </form>
+            </div>
         </div>
     )
 }
