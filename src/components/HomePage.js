@@ -11,14 +11,12 @@ export default function HomePage() {
     }, []);
 
     const deckLinks = decks.map(d =>
-        <div key={d.id}>
-            <Link to={`/${d.id}`}>{d.name}</Link>
-        </div>
+        <Link to={`/${d.id}`} className='deck-link' key={d.id}>{d.name}</Link>
     )
 
     return (
-        <div>
-            Decks: {deckLinks}
+        <div className='deck-links-container'>
+            {deckLinks}
         </div>
     )
 }

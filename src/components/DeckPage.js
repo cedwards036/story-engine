@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import Card from './Card';
 import '../App.css';
 
-export default function DeckPage() {
+export default function DeckPage(props) {
     const { deckId } = useParams();
     const [packs, setPacks] = useState([]);
     const [selectedPacks, setSelectedPacks] = useState({});
@@ -60,7 +60,7 @@ export default function DeckPage() {
             .then(data => setCards(data));
     }
 
-    function handleSubmit(event) {
+    function handleDrawNewHand(event) {
         loadHand(selectedPacks);
         event.preventDefault();
     }
@@ -77,12 +77,25 @@ export default function DeckPage() {
             <label htmlFor={p.name}>{p.name}</label>
         </div>
     )
+
+    function getSideBarClass() {
+        if (props.sidebarIsOpen) {
+            return ' side-bar-open'
+        } else {
+            return ' side-bar-closed'
+        }
+    }
+
     return (
         <div>
-            <form onSubmit={handleSubmit}>
-                {packDivs}
-                <input type='submit' value='Draw New Hand' />
-            </form>
+            <div className={'side-bar' + getSideBarClass()}>
+                Packs
+                <form>
+                    {packDivs}
+                </form>
+                <button className='closebtn' onClick={props.closeSidebar}>X</button>
+            </div>
+            <button onClick={handleDrawNewHand} className='drawbtn'>Draw New Hand</button>
             <div className='hand'>
                 {
                     cards.map((card, index) =>
