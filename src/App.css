@@ -130,3 +130,20 @@ footer {
   box-shadow: 0px -3px 5px grey;
   font-size: 0.75em;
 }
+
+
+@media only screen and (max-width: 700px) {
+ .card {
+   font-size: 0.75em;
+   border-radius: 10px;
+   margin: 10px;
+   width: 100px;
+   height: 150px;
+   position: relative;
+   background-color: white;
+   box-shadow: 5px 5px 10px grey;
+ }
+ .card-body {
+  padding: 10px;
+ }
+}
